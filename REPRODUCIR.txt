@@ -1,0 +1,89 @@
+Instrucciones para reproducir el flujo de trabajo
+==================================================
+
+Transcripción automatizada e indexación de registros parroquiales
+Losar de la Vera (Cáceres), 1807–1874
+
+
+REQUISITOS PREVIOS
+------------------
+- Cuenta de Google con acceso a Google Colab y Drive.
+- API key de OpenAI (notebook 02).
+- API key de Google Gemini (notebooks 03 y 04).
+- Carpeta en Drive con la estructura:
+    <TU_CARPETA>/
+        imagenes/       ← imágenes del corpus (una por lote cronológico)
+        outputs/        ← se generará automáticamente
+
+
+INSTALACIÓN DE DEPENDENCIAS
+----------------------------
+Las dependencias se instalan automáticamente en la primera celda de cada notebook.
+Para instalación local:
+
+    pip install -r requirements.txt
+
+
+ORDEN DE EJECUCIÓN
+------------------
+
+1. 01_preprocesamiento.ipynb  [OPCIONAL]
+   Detecta imágenes duplicadas y aplica mejora de contraste (CLAHE).
+   En este proyecto se prescindió de este paso al comprobar que el
+   preprocesamiento empeoraba la legibilidad; se incluye por reproducibilidad.
+
+2. 02_transcripcion_openai.ipynb
+   Transcribe las imágenes con GPT-4o, segmenta las actas y extrae los
+   campos demográficos. Guarda los resultados en SQLite y exporta a CSV/Excel.
+   Ejecutar un notebook por lote cronológico (ajustar ANIO_INICIO_LOTE y
+   ANIO_FIN_LOTE en la celda de configuración).
+
+3. 03_transcripcion_gemini.ipynb
+   Mismo flujo que el notebook anterior usando Gemini 2.5 Flash.
+   Solo es necesario ejecutarlo sobre la submuestra de control (15 imágenes)
+   para poder calcular el ICG en el paso siguiente.
+
+4. 04_validador_consistencia.ipynb
+   Compara las extracciones de ambos modelos sobre la submuestra de control
+   y calcula el Índice de Consistencia Global (ICG). Exporta un informe Excel
+   con el detalle registro a registro.
+
+5. 05_estadisticas.ipynb
+   Carga la base de datos generada en el paso 2 y produce todos los análisis
+   y visualizaciones del TFM (natalidad, sexo, apellidos, onomástica, movilidad).
+
+
+CONFIGURACIÓN DE RUTAS
+-----------------------
+En cada notebook hay una celda de configuración. Los únicos valores que debes
+cambiar son:
+
+    DRIVE_MOUNT = '/content/drive'   ← solo si no usas Colab
+    DB_PATH     = '...'              ← ruta a tu base de datos SQLite
+    CARPETA_DRIVE = '...'            ← ruta a la carpeta de imágenes
+
+El resto de parámetros (umbrales, prompts, nombres de columnas) no deben
+modificarse para mantener la compatibilidad entre notebooks.
+
+
+CLAVES API
+----------
+Se solicitan mediante getpass.getpass() al ejecutar la celda de configuración.
+No se almacenan en el notebook ni en disco. Tenlas disponibles antes de ejecutar.
+
+
+SALIDAS GENERADAS
+-----------------
+- bautismos_losar_vera.db          Base de datos SQLite con todos los registros
+- bautismos_<lote>.csv / .xlsx     Exportación por lote cronológico
+- transcripciones_<lote>.csv       Texto bruto transcrito por imagen (trazabilidad)
+- informe_consistencia.xlsx        Informe del evaluador de consistencia
+
+
+PROBLEMAS FRECUENTES
+--------------------
+- Error al montar Drive: verifica permisos y vuelve a ejecutar la celda de montaje.
+- JSON mal formado en la extracción: los notebooks ya incluyen manejo de fallos;
+  el registro se descarta y el proceso continúa. Revisa el log al finalizar.
+- Timeout de API: el procesamiento es secuencial; en corpus grandes puede tardar
+  varias horas. SALTAR_YA_PROCESADAS = True permite reanudar sin duplicar registros.
