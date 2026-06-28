@@ -1,10 +1,4 @@
 # Paleografía automatizada: transcripción e indexación de registros parroquiales
-
-**TFM — Máster en Ciencia de Datos Aplicada a las Ciencias Sociales · Universidad de Granada**  
-Alumna: Clara Barriuso Pizarro · Tutor: Miguel Molina Solana
-
----
-
 ## Descripción
 
 Repositorio con el código reproducible del flujo de trabajo desarrollado para la transcripción automática y el análisis sociodemográfico del archivo parroquial de Losar de la Vera (Cáceres), correspondiente al periodo 1807–1874.
@@ -96,7 +90,7 @@ Las claves se solicitan de forma segura mediante `getpass.getpass()` y no se alm
 
 ## Datos
 
-El corpus documental consiste en 1.362 imágenes digitalizadas del archivo parroquial de Losar de la Vera, cedidas para este estudio. El fondo original pertenece al Archivo Histórico de la Diócesis de Plasencia, donde los registros son accesibles para consulta pública.
+El corpus documental consiste en 1.362 imágenes de manuscritos digitalizados, donde los registros son accesibles para consulta pública.
 
 Por razones de privacidad y volumen, las imágenes y la base de datos generada **no se incluyen en este repositorio**.
 
